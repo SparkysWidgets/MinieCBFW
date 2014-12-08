@@ -38,7 +38,7 @@ struct parameters_T
   unsigned int WriteCheck;
   int eCLowCal, eCHighCal;
   float eCStep;
-} 
+}
 params;
 
 float eC, temperatute;
