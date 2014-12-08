@@ -69,8 +69,7 @@ void loop()
 }
 
 
-//Lets read our raw reading while in pH7 calibration fluid and store it
-//We will store in raw int formats as this math works the same on pH step calcs
+//Lets read our raw reading while in our lower eC cal solution
 void calibrateeCLow(int calnum)
 {
   params.eCLowCal = calnum;
@@ -79,10 +78,7 @@ void calibrateeCLow(int calnum)
   eeprom_write_block(&params, (void *)0, sizeof(params)); 
 }
 
-//Lets read our raw reading while in pH4 calibration fluid and store it
-//We will store in raw int formats as this math works the same on pH step calcs
-//Temperature compensation can be added by providing the temp offset per degree
-//IIRC .009 per degree off 25c (temperature-25*.009 added pH@4calc)
+//Lets read our raw reading while in our higher eC cal solution
 void calibrateeCHigh(int calnum)
 {
   params.eCHighCal = calnum;
@@ -91,19 +87,14 @@ void calibrateeCHigh(int calnum)
   eeprom_write_block(&params, (void *)0, sizeof(params));
 }
 
-//This is really the heart of the calibration process, we want to capture the
-//probes "age" and compare it to the Ideal Probe, the easiest way to capture two readings,
-//at known point(4 and 7 for example) and calculate the slope.
-//If your slope is drifting too much from Ideal(59.16) its time to clean or replace!
+//This is really the heart of the calibration process
 void calceCSlope ()
 {
   //RefVoltage * our deltaRawpH / 12bit steps *mV in V / OP-Amp gain /pH step difference 7-4
-	params.eCStep = ((((I2CadcVRef*(float)(params.eCLowCal - params.eCHighCal)) / 4095) * 1000);
+	params.eCStep = ((((I2CadcVRef*(float)(params.eCLowCal - params.eCHighCal)) / 4095) * 1000));
 }
 
-//Now that we know our probe "age" we can calculate the proper pH Its really a matter of applying the math
-//We will find our milivolts based on ADV vref and reading, then we use the 7 calibration
-//to find out how many steps that is away from 7, then apply our calibrated slope to calculate real pH
+
 void calcEc(int raw)
 {
 	float temp, tempmv, tempgain, Rprobe;
